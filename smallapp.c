@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
     /* DAP */
     #define SIPDOMAIN     1
     #define SIPUSER       2
-    #define SIPPASSFILE   3
+    #define SIPPASS       3
     #define AUDIOCAPTURE  4
     #define AUDIOPLAYBACK 5
     #define SIPDEST       6
