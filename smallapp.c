@@ -307,6 +307,9 @@ int main(int argc, char *argv[])
         }
         /* DAP */
 
+        // Daniel TCP ADDED 20220331
+        status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &cfg, NULL);
+
         if (status != PJ_SUCCESS) error_exit("Error creating transport", status);
     }
 
@@ -369,12 +372,13 @@ status = pjsua_set_snd_dev(PJSUA_SND_NULL_DEV,PJSUA_SND_NULL_DEV);
         char option[64];
         /* DAP char option[10]; */
 
-        /* DAP */
+        /* DAP Danel 20220331 add tcp calling */
         PJ_LOG(3,(THIS_FILE, "----------------------------------------------"));
         PJ_LOG(3,(THIS_FILE, "Daniel's VSSP (Very Small SIP phone)"));
         PJ_LOG(3,(THIS_FILE, "----------------------------------------------"));
         PJ_LOG(3,(THIS_FILE, "Enter a To Answer a Call"));
-        PJ_LOG(3,(THIS_FILE, "Enter c <PhoneNumber> To place PSTN call"));
+        PJ_LOG(3,(THIS_FILE, "Enter c <PhoneNumber> To place PSTN call using udp (default)"));
+        PJ_LOG(3,(THIS_FILE, "Enter C <PhoneNumber> To place PSTN call using tcp"));
         PJ_LOG(3,(THIS_FILE, "Enter h To hangup all calls"));
         PJ_LOG(3,(THIS_FILE, "Enter # <DTMFstring> To dial out RFC2833"));
         PJ_LOG(3,(THIS_FILE, "Enter r <PhoneNumber> To redirect incoming call"));
@@ -395,6 +399,21 @@ status = pjsua_set_snd_dev(PJSUA_SND_NULL_DEV,PJSUA_SND_NULL_DEV);
         if (option[0] == 'c') {
           char sipurl[128];
           sprintf(sipurl,"sip:%s@%s",option+2,argv[SIPDOMAIN]);
+          status = pjsua_verify_sip_url(sipurl);
+          if (status != PJ_SUCCESS) {
+            puts("Invalid URL hardcoded");
+          } else {
+            pj_str_t uri = pj_str(sipurl);
+            status = pjsua_call_make_call(acc_id, &uri, 0, NULL, NULL, NULL);
+            if (status != PJ_SUCCESS)
+                PJ_LOG(3,(THIS_FILE, "Error making call"));
+          }
+        }
+
+        // Daniel 20220331 added tcp calling
+        if (option[0] == 'C') {
+          char sipurl[128];
+          sprintf(sipurl,"sip:%s@%s;transport=tcp",option+2,argv[SIPDOMAIN]);
           status = pjsua_verify_sip_url(sipurl);
           if (status != PJ_SUCCESS) {
             puts("Invalid URL hardcoded");
